@@ -1,0 +1,79 @@
+// Textos da interface em pt-BR, centralizados. Não espalhar strings pelos componentes.
+import type { MediaErrorCode } from "@/lib/errors";
+
+const errors: Record<MediaErrorCode, string> = {
+  "unsupported-file": "Formato não reconhecido. Use MP4, MOV, WebM, MP3, M4A, WAV, OGG, PNG, JPG, WebP ou GIF.",
+  "too-large": "Arquivo grande demais. Limite: vídeo 200 MB, áudio 25 MB, imagem 20 MB.",
+  "too-long": "A origem pode ter no máximo 10 minutos.",
+  "image-too-big": "Imagem grande demais (máx. 8000 px por lado).",
+  "no-media": "O arquivo não tem vídeo nem áudio.",
+  "decode-failed": "Este navegador não conseguiu ler o arquivo. Tente um MP4 (H.264) ou outro navegador.",
+  "encode-unsupported": "Este navegador não consegue gerar o vídeo. Tente o Chrome atualizado.",
+  "encode-failed": "Não foi possível gerar o arquivo. Tente de novo ou use um trecho menor.",
+  canceled: "Cancelado.",
+};
+
+export const t = {
+  site: {
+    name: "Figurinha com som",
+    tagline: "Transforme vídeo, GIF ou imagem com áudio em figurinha com som para o WhatsApp.",
+    privacy: "Tudo acontece no seu celular. Nenhum arquivo é enviado.",
+  },
+  theme: {
+    toggle: "Alternar tema claro/escuro",
+  },
+  editor: {
+    pick: "Escolher arquivos",
+    pickHint: "Um vídeo, ou uma imagem/GIF e um áudio. Pode escolher os dois juntos.",
+    loading: "Lendo arquivo…",
+    addAudio: "Adicionar áudio",
+    replaceAudio: "Trocar o som",
+    addVisual: "Adicionar imagem, GIF ou vídeo",
+    remove: (name: string) => `Remover ${name}`,
+    needAudio: "Adicione um áudio para a figurinha ter som.",
+    audioOnly: "Sem imagem: será gerado só o áudio, para anexar a uma figurinha no WhatsApp.",
+    videoLoops: "O vídeo começa do início e repete durante o áudio escolhido.",
+    frame: "Arraste para enquadrar. Use dois dedos ou o controle para aproximar.",
+    cropArea: "Enquadramento. Use as setas para mover.",
+    zoom: "Zoom",
+    background: "Fundo",
+    backgrounds: { "#ffffff": "Branco", "#000000": "Preto" },
+    trim: "Trecho",
+    duration: "Duração máxima",
+    trimStart: "Início do trecho",
+    trimEnd: "Fim do trecho",
+    trimRegion: "Trecho selecionado",
+    overview: "Posição na origem",
+    play: "Ouvir trecho",
+    stop: "Parar",
+    export: "Gerar figurinha",
+    exporting: "Gerando…",
+    cancel: "Cancelar",
+  },
+  done: {
+    title: "Pronto!",
+    saveVideo: "Salvar vídeo (MP4)",
+    saveAudio: (ext: string) => `Salvar áudio (${ext.toUpperCase()})`,
+    saved: "Salvo.",
+    back: "Voltar e ajustar",
+    again: "Fazer outra",
+    howVideoTitle: "Com o vídeo",
+    howVideo: [
+      "Salve o vídeo na galeria.",
+      "No WhatsApp, abra uma conversa e toque no ícone de figurinhas.",
+      "Toque em Criar e escolha o vídeo salvo.",
+    ],
+    howAudioTitle: "Com o áudio",
+    howAudio: [
+      "Salve o áudio.",
+      "No editor de figurinhas do WhatsApp, use a opção de adicionar som e escolha o áudio.",
+    ],
+    note: "O WhatsApp reconverte o arquivo e decide a duração final (às vezes ~5s). O recurso de som está chegando aos poucos e os nomes dos botões podem variar. Colar o MP4 direto no chat envia um vídeo, não uma figurinha.",
+  },
+  errors,
+  steps: [
+    "Escolha um vídeo, ou uma imagem/GIF e um áudio",
+    "Recorte o trecho e enquadre",
+    "Baixe e crie a figurinha no WhatsApp",
+  ],
+} as const;
