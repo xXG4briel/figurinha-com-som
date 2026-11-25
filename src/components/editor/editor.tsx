@@ -17,7 +17,7 @@ import { MediaClient } from "@/lib/media/client";
 import { CENTERED, toNormalized, type CropState } from "@/lib/media/crop";
 import type { Peaks } from "@/lib/media/peaks";
 import type { ExportJob, ExportResult } from "@/lib/media/protocol";
-import { applyMax, initialSelection, type Selection } from "@/lib/media/trim";
+import { changeMax, initialSelection, type Selection } from "@/lib/media/trim";
 import { BACKGROUNDS, loadPrefs, savePrefs, type Background } from "@/lib/prefs";
 
 type Visual = {
@@ -36,9 +36,10 @@ type Phase =
   | { name: "exporting"; progress: number }
   | { name: "done"; result: ExportResult; previewUrl: string | null; stamp: string };
 
-const ACCEPT_ANY = "video/*,audio/*,image/*,.mov,.m4a,.mp3,.wav,.ogg,.opus,.aac,.gif,.webp";
-const ACCEPT_AUDIO = "audio/*,.m4a,.mp3,.wav,.ogg,.opus,.aac,video/mp4";
-const ACCEPT_VISUAL = "video/*,image/*,.mov,.gif,.webp";
+// Filtro único e fixo: o app identifica cada arquivo pelos bytes e o coloca no lugar certo
+// (imagem/vídeo ou áudio). Trocar o `accept` a cada clique faz seletores de celular
+// esconderem ou recusarem arquivos válidos.
+const ACCEPT_ANY = "video/*,audio/*,image/*,.mov,.m4a,.mp3,.wav,.ogg,.opus,.aac,.gif,.webp,.heic,.avif";
 
 /** Origem com tempo: o áudio separado, ou o próprio vídeo. É ela que a timeline recorta. */
 function timedOf(visual: Visual | null, sound: Sound | null) {
@@ -138,19 +139,17 @@ export function Editor() {
         else
           nextVisual = { file, url, kind: "video", mime: file.type, width: info.width, height: info.height, durationMs: info.durationMs, hasAudio: info.hasAudio };
       } catch (err) {
-        toast.error(errorMessage(err), { description: file.name });
+        // Tipo e tamanho ajudam a diagnosticar o que o celular entregou.
+        toast.error(errorMessage(err), {
+          description: `${file.name} (${file.type || "tipo desconhecido"}, ${(file.size / 1024 / 1024).toFixed(1)} MB)`,
+        });
       }
     }
     applySources(nextVisual, nextSound);
     setLoading(false);
   };
 
-  const openPicker = (accept: string) => {
-    const input = inputRef.current;
-    if (!input) return;
-    input.accept = accept;
-    input.click();
-  };
+  const openPicker = () => inputRef.current?.click();
 
   const onPaste = useEffectEvent((e: ClipboardEvent) => {
     const files = [...(e.clipboardData?.files ?? [])];
@@ -217,7 +216,7 @@ export function Editor() {
   const onPreset = (next: DurationPresetMs) => {
     setPresetMs(next);
     savePrefs({ presetMs: next });
-    setSelection((s) => applyMax(s, next));
+    if (timed) setSelection((s) => changeMax(s, presetMs, next, timed.durationMs));
   };
 
   // ------------------------------------------------------------ exportação
@@ -274,6 +273,7 @@ export function Editor() {
           ref={inputRef}
           type="file"
           multiple
+          accept={ACCEPT_ANY}
           className="sr-only"
           tabIndex={-1}
           aria-hidden
@@ -287,7 +287,7 @@ export function Editor() {
           <button
             type="button"
             disabled={loading}
-            onClick={() => openPicker(ACCEPT_ANY)}
+            onClick={() => openPicker()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={onDrop}
             className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-6 text-center transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50 active:bg-muted disabled:opacity-60"
@@ -341,7 +341,7 @@ export function Editor() {
               <button
                 type="button"
                 disabled={loading || exporting}
-                onClick={() => openPicker(ACCEPT_VISUAL)}
+                onClick={() => openPicker()}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={onDrop}
                 className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-6 text-center outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50 active:bg-muted"
@@ -376,7 +376,7 @@ export function Editor() {
                     variant="outline"
                     className="h-11 w-full"
                     disabled={loading || exporting}
-                    onClick={() => openPicker(ACCEPT_AUDIO)}
+                    onClick={() => openPicker()}
                   >
                     <MusicIcon />
                     {visual?.kind === "video" && visual.hasAudio ? t.editor.replaceAudio : t.editor.addAudio}

@@ -36,9 +36,17 @@ export function moveBy(sel: Selection, deltaMs: number, b: Pick<TrimBounds, "lo"
   return { startMs, endMs: startMs + len };
 }
 
-/** Ao trocar o preset, encurta o trecho se ele passar do novo máximo. */
-export function applyMax(sel: Selection, maxMs: number): Selection {
-  return sel.endMs - sel.startMs > maxMs ? { startMs: sel.startMs, endMs: sel.startMs + maxMs } : sel;
+/**
+ * Ao trocar o preset: encurta o trecho se passar do novo máximo; se ele estava
+ * "cheio" no máximo antigo, estende até o novo máximo (limitado ao fim da origem).
+ * Um trecho que o usuário deixou menor de propósito não muda.
+ */
+export function changeMax(sel: Selection, oldMax: number, newMax: number, durationMs: number): Selection {
+  const len = sel.endMs - sel.startMs;
+  if (len > newMax) return { startMs: sel.startMs, endMs: sel.startMs + newMax };
+  const wasFull = len >= Math.min(oldMax, durationMs) - 1;
+  if (newMax > oldMax && wasFull) return { startMs: sel.startMs, endMs: Math.min(durationMs, sel.startMs + newMax) };
+  return sel;
 }
 
 /** "1,5s" */
