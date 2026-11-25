@@ -2,7 +2,7 @@
 // cabeçalho, sem decodificar. Puro: recebe bytes, devolve dados.
 
 export type SniffedKind =
-  | { kind: "image"; mime: "image/png" | "image/jpeg" | "image/gif" | "image/webp" }
+  | { kind: "image"; mime: "image/png" | "image/jpeg" | "image/gif" | "image/webp" | "image/heic" | "image/avif" }
   | { kind: "av"; container: "isobmff" | "webm" }
   | { kind: "audio"; container: "mp3" | "wav" | "ogg" | "aac" | "flac" };
 
@@ -17,7 +17,13 @@ export function sniff(b: Uint8Array): SniffedKind | null {
   if (ascii(b, 0, 4) === "GIF8") return { kind: "image", mime: "image/gif" };
   if (ascii(b, 0, 4) === "RIFF" && ascii(b, 8, 4) === "WEBP") return { kind: "image", mime: "image/webp" };
 
-  if (ascii(b, 4, 4) === "ftyp") return { kind: "av", container: "isobmff" };
+  if (ascii(b, 4, 4) === "ftyp") {
+    // HEIC/AVIF usam o mesmo contêiner do MP4; o que muda é a marca principal.
+    const brand = ascii(b, 8, 4);
+    if (["heic", "heix", "heim", "heis", "hevc", "hevx", "mif1", "msf1"].includes(brand)) return { kind: "image", mime: "image/heic" };
+    if (brand === "avif" || brand === "avis") return { kind: "image", mime: "image/avif" };
+    return { kind: "av", container: "isobmff" };
+  }
   if (b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3) return { kind: "av", container: "webm" };
 
   if (ascii(b, 0, 4) === "RIFF" && ascii(b, 8, 4) === "WAVE") return { kind: "audio", container: "wav" };

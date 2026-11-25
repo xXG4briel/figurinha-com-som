@@ -6,6 +6,7 @@ export const MEDIA_ERROR_CODES = [
   "too-large",
   "too-long",
   "image-too-big",
+  "unsupported-image",
   "no-media",
   "decode-failed",
   "encode-unsupported",

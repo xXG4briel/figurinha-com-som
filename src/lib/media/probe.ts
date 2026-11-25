@@ -77,6 +77,7 @@ async function decodedSize(file: File) {
     bmp.close();
     return dims;
   } catch {
-    throw new MediaError("unsupported-file");
+    // Formato reconhecido pelos bytes, mas este navegador não decodifica (ex.: HEIC no Chrome).
+    throw new MediaError("unsupported-image");
   }
 }

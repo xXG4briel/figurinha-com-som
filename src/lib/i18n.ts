@@ -2,10 +2,11 @@
 import type { MediaErrorCode } from "@/lib/errors";
 
 const errors: Record<MediaErrorCode, string> = {
-  "unsupported-file": "Formato não reconhecido. Use MP4, MOV, WebM, MP3, M4A, WAV, OGG, PNG, JPG, WebP ou GIF.",
+  "unsupported-file": "Formato não reconhecido. Use MP4, MOV, WebM, MP3, M4A, WAV, OGG, PNG, JPG, WebP, GIF, HEIC ou AVIF.",
   "too-large": "Arquivo grande demais. Limite: vídeo 200 MB, áudio 25 MB, imagem 20 MB.",
   "too-long": "A origem pode ter no máximo 10 minutos.",
   "image-too-big": "Imagem grande demais (máx. 8000 px por lado).",
+  "unsupported-image": "Este navegador não abre esse tipo de imagem (HEIC/AVIF). Envie como JPG ou PNG.",
   "no-media": "O arquivo não tem vídeo nem áudio.",
   "decode-failed": "Este navegador não conseguiu ler o arquivo. Tente um MP4 (H.264) ou outro navegador.",
   "encode-unsupported": "Este navegador não consegue gerar o vídeo. Tente o Chrome atualizado.",
